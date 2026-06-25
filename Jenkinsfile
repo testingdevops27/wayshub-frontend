@@ -33,9 +33,9 @@ pipeline{
             steps{
                 sshagent([cred]){
                     sh """ssh -o StrictHostKeyChecking=no ${server} << EOF
-                    docker stop wayshub_frontend || true
-                    docker rm wayshub_frontend || true
-                    docker run -d -p 3000:3000 --name wayshub_frontend wayshub-frontend
+                    docker stop adejenkins-frontend || true
+                    docker rm adejenkins-frontend || true
+                    docker run -d -p 3000:3000 --name adejenkins-frontend wayshub-frontend
                     exit
                     EOF"""
                 }
