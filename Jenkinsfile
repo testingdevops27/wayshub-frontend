@@ -25,7 +25,7 @@ pipeline{
         stage('docker deploy'){
             steps{
                 sshagent([cred]){
-                    sh "ssh -o StrictHostKeyChecking=no ${server} 'docker stop wayshub-frontend-staging || true && docker rm wayshub-frontend-staging || true && docker run -d -p 3100:80 --name wayshub-frontend-staging ${imageName}'"
+                    sh "ssh -o StrictHostKeyChecking=no ${server} 'docker stop wayshub-frontend-staging || true && docker rm wayshub-frontend-staging || true && docker run -d -p 3100:3000 --name wayshub-frontend-staging ${imageName}'"
                 }
             }
         }
