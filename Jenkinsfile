@@ -11,34 +11,22 @@ pipeline{
         stage('repo pull'){
             steps{
                 sshagent([cred]){
-                    sh """ssh -o StrictHostKeyChecking=no ${server} << EOF
-                    cd ${directory}
-                    git pull ${remote} ${branch}
-                    exit
-                    EOF"""
+                    sh """ssh -o StrictHostKeyChecking=no ${server} 'cd ${directory} && git pull ${remote} ${branch}'"""
                 }
             }
         }
         stage('docker build'){
             steps{
                 sshagent([cred]){
-                    sh """ssh -o StrictHostKeyChecking=no ${server} << EOF
-                    cd ${directory}
-                    docker build -t ${imageName} .
-                    exit
-                    EOF"""
+                    sh """ssh -o StrictHostKeyChecking=no ${server} 'cd ${directory} && docker build -t ${imageName} .'"""
                 }
             }
         }
         stage('docker push'){
             steps{
-                sshagent([cred]){
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
-                        sh """ssh -o StrictHostKeyChecking=no ${server} << EOF
-                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                        docker push ${imageName}
-                        exit
-                        EOF"""
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
+                    sshagent([cred]){
+                        sh """ssh -o StrictHostKeyChecking=no ${server} 'echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin && docker push ${imageName}'"""
                     }
                 }
             }
@@ -46,12 +34,7 @@ pipeline{
         stage('docker deploy'){
             steps{
                 sshagent([cred]){
-                    sh """ssh -o StrictHostKeyChecking=no ${server} << EOF
-                    docker stop wayshub-frontend-staging || true
-                    docker rm wayshub-frontend-staging || true
-                    docker run -d -p 3100:3000 --name wayshub-frontend-staging ${imageName}
-                    exit
-                    EOF"""
+                    sh """ssh -o StrictHostKeyChecking=no ${server} 'docker stop wayshub-frontend-staging || true && docker rm wayshub-frontend-staging || true && docker run -d -p 3100:80 --name wayshub-frontend-staging ${imageName}'"""
                 }
             }
         }
