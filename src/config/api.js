@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-    baseURL: "http://103.193.178.218:5000/api/v1"
+    baseURL: "https://api.stagingops27.studentdumbways.my.id/api/v1"
 });
 
 const setAuthToken = (token) => {
